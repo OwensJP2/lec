@@ -1,4 +1,5 @@
 .venv/
+.vercel/
 __pycache__/
 *.py[cod]
 *.egg-info/
@@ -23,3 +24,4 @@ paper/*.aux
 paper/*.log
 paper/*.out
 paper/*.pdf
+.vercel
