@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Local interface for Linguistic Entropy Coding">
+  <title>LEC — Linguistic Entropy Coding</title>
+  <link rel="stylesheet" href="/styles.css?v=0.1.3">
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="mark" aria-hidden="true">L</div>
+      <div>
+        <p class="eyebrow">LOCAL · REVERSIBLE · ENCRYPTED</p>
+        <h1>Linguistic Entropy Coding</h1>
+        <p class="lede">Hide a short encrypted message inside deterministic language-model text.</p>
+      </div>
+    </header>
+
+    <section class="workspace" aria-labelledby="mode-title">
+      <h2 id="mode-title" class="sr-only">Choose operation</h2>
+      <div class="tabs" role="tablist" aria-label="Operation">
+        <button class="tab active" id="encode-tab" role="tab" aria-selected="true"
+                aria-controls="encode-panel" data-mode="encode">Encode</button>
+        <button class="tab" id="decode-tab" role="tab" aria-selected="false"
+                aria-controls="decode-panel" data-mode="decode">Decode</button>
+      </div>
+
+      <form id="encode-panel" class="panel active" role="tabpanel" aria-labelledby="encode-tab">
+        <label for="message">Secret message</label>
+        <textarea id="message" rows="5" maxlength="4096"
+                  placeholder="Enter the exact text to protect…" required></textarea>
+        <p class="hint"><span id="message-bytes">0</span> UTF-8 bytes</p>
+        <div class="field-grid">
+          <div>
+            <label for="encode-key">Encryption key</label>
+            <input id="encode-key" type="password" autocomplete="new-password" required>
+          </div>
+          <div>
+            <label for="encode-capacity">Capacity (bytes)</label>
+            <input id="encode-capacity" type="number" min="1" value="16" required>
+          </div>
+        </div>
+        <label class="switch-row">
+          <input id="encode-toy" type="checkbox">
+          <span class="switch" aria-hidden="true"></span>
+          <span><strong id="encode-model-title">Offline toy model</strong><small id="encode-model-help">Fast and deterministic; less natural text</small></span>
+        </label>
+        <details class="advanced">
+          <summary>Generation options</summary>
+          <p>These settings change the coding distribution and must match when decoding.</p>
+          <div class="option-grid">
+            <div>
+              <label for="encode-temperature">Temperature</label>
+              <input id="encode-temperature" type="number" min="0.1" max="2" step="0.1" value="1">
+            </div>
+            <div>
+              <label for="encode-top-k">Top-k</label>
+              <input id="encode-top-k" type="number" min="2" max="100" value="50">
+            </div>
+            <div>
+              <label for="encode-top-p">Top-p</label>
+              <input id="encode-top-p" type="number" min="0.1" max="1" step="0.05" value="0.95">
+            </div>
+            <div>
+              <label for="encode-repetition">Repetition penalty</label>
+              <input id="encode-repetition" type="number" min="1" max="2" step="0.05" value="1.25">
+            </div>
+            <div>
+              <label for="encode-ngram">No-repeat n-gram</label>
+              <input id="encode-ngram" type="number" min="0" max="16" value="6">
+            </div>
+            <div>
+              <label for="encode-precision">Probability bits</label>
+              <select id="encode-precision">
+                <option value="8">8-bit</option>
+                <option value="12">12-bit</option>
+                <option value="16" selected>16-bit</option>
+                <option value="20">20-bit</option>
+                <option value="24">24-bit</option>
+              </select>
+            </div>
+          </div>
+        </details>
+        <button class="primary" type="submit">Encode message</button>
+      </form>
+
+      <form id="decode-panel" class="panel" role="tabpanel" aria-labelledby="decode-tab" hidden>
+        <label for="covertext">Generated covertext</label>
+        <textarea id="covertext" rows="8" placeholder="Paste covertext exactly as generated…" required></textarea>
+        <div class="warning">Covertext must be byte-for-byte exact. Editing, reformatting, or adding words prevents decoding.</div>
+        <div class="field-grid">
+          <div>
+            <label for="decode-key">Encryption key</label>
+            <input id="decode-key" type="password" autocomplete="current-password" required>
+          </div>
+          <div>
+            <label for="decode-capacity">Capacity (bytes)</label>
+            <input id="decode-capacity" type="number" min="1" value="16" required>
+          </div>
+        </div>
+        <label class="switch-row">
+          <input id="decode-toy" type="checkbox">
+          <span class="switch" aria-hidden="true"></span>
+          <span><strong id="decode-model-title">Offline toy model</strong><small id="decode-model-help">Must match the mode used to encode</small></span>
+        </label>
+        <details class="advanced">
+          <summary>Decoding configuration</summary>
+          <p>Use exactly the settings selected during encoding.</p>
+          <div class="option-grid">
+            <div>
+              <label for="decode-temperature">Temperature</label>
+              <input id="decode-temperature" type="number" min="0.1" max="2" step="0.1" value="1">
+            </div>
+            <div>
+              <label for="decode-top-k">Top-k</label>
+              <input id="decode-top-k" type="number" min="2" max="100" value="50">
+            </div>
+            <div>
+              <label for="decode-top-p">Top-p</label>
+              <input id="decode-top-p" type="number" min="0.1" max="1" step="0.05" value="0.95">
+            </div>
+            <div>
+              <label for="decode-repetition">Repetition penalty</label>
+              <input id="decode-repetition" type="number" min="1" max="2" step="0.05" value="1.25">
+            </div>
+            <div>
+              <label for="decode-ngram">No-repeat n-gram</label>
+              <input id="decode-ngram" type="number" min="0" max="16" value="6">
+            </div>
+            <div>
+              <label for="decode-precision">Probability bits</label>
+              <select id="decode-precision">
+                <option value="8">8-bit</option>
+                <option value="12">12-bit</option>
+                <option value="16" selected>16-bit</option>
+                <option value="20">20-bit</option>
+                <option value="24">24-bit</option>
+              </select>
+            </div>
+          </div>
+        </details>
+        <button class="primary" type="submit">Decode covertext</button>
+      </form>
+
+      <div id="error" class="error" role="alert" hidden></div>
+      <section id="result" class="result" aria-live="polite" hidden>
+        <div class="result-head">
+          <div>
+            <p class="eyebrow" id="result-label">RESULT</p>
+            <h2 id="result-title">Generated text</h2>
+            <p id="result-status" class="stream-status"></p>
+          </div>
+          <div class="actions">
+            <button id="copy" class="secondary" type="button">Copy</button>
+            <button id="download" class="secondary" type="button">Download</button>
+          </div>
+        </div>
+        <pre id="result-output"></pre>
+        <dl class="metrics">
+          <div><dt>Tokens</dt><dd id="metric-tokens">—</dd></div>
+          <div><dt>Payload bits</dt><dd id="metric-payload">—</dd></div>
+          <div><dt>Bits / token</dt><dd id="metric-bpt">—</dd></div>
+          <div><dt>Entropy use</dt><dd id="metric-entropy">—</dd></div>
+        </dl>
+      </section>
+    </section>
+
+    <section class="about">
+      <h2>How it works</h2>
+      <p>Your message is authenticated and encrypted, then arithmetic coding maps its bits to likely next-token choices. Decoding replays the same probabilities to recover the ciphertext. The key and content stay in this local process.</p>
+    </section>
+  </main>
+  <script src="/app.js?v=0.1.3" defer></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+\documentclass[10pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+\title{Linguistic Entropy Coding: Reversible Ciphertext Embedding Through
+Language-Model Sampling}
+\author{Anonymous authors}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We study a reversible mapping in which authenticated ciphertext substitutes
+for the random entropy ordinarily consumed during language-model sampling.
+An arithmetic interval coder selects tokens from deterministically quantized
+next-token distributions, allowing an unchanged token sequence to recover the
+exact ciphertext. We present a minimal reproducible implementation and evaluate
+recovery, capacity, linguistic quality, and detectability relative to ordinary
+sampling. This work does not propose a new cryptographic primitive or claim
+novelty for neural linguistic steganography.
+\end{abstract}
+
+\section{Introduction}
+For an autoregressive model,
+\[
+  P(x_{1:T})=\prod_{t=1}^{T}P(x_t\mid x_{<t}),
+\]
+ordinary stochastic generation consumes random entropy to select each token.
+LEC replaces that entropy source with authenticated ciphertext, which should be
+computationally indistinguishable from random bits under standard assumptions.
+
+\section{Related Work}
+\paragraph{Linguistic steganography.}
+Discuss classical and neural linguistic steganography, distribution-preserving
+coding, and threat models.
+\paragraph{Entropy coding.}
+Discuss arithmetic coding, range coding, and asymmetric numeral systems.
+\paragraph{Language-model sampling.}
+Discuss temperature and candidate truncation.
+
+\section{Linguistic Entropy Coding}
+At step $t$, floating-point model probabilities are converted to integer
+frequencies $F_{t,i}$ satisfying
+\[
+  \sum_i F_{t,i}=2^N.
+\]
+The encrypted payload identifies an integer point in an initial interval. Each
+observed token narrows the interval according to $F_t$ until it contains one
+point. The decoder replays the same distributions and interval updates.
+
+\section{Implementation}
+The v0.1 implementation fixes DistilGPT-2 weights and tokenizer, deterministic
+CPU inference, one prompt, ChaCha20-Poly1305, fixed payload blocks, and
+tokenization-roundtrip-safe candidates. Integer largest-remainder quantization
+uses token identifiers as deterministic tie breakers.
+
+\section{Experiments}
+\subsection{RQ1: Reversibility}
+Report byte recovery accuracy over payload sizes and configurations.
+\subsection{RQ2: Capacity}
+Report bits per token and entropy utilization
+\[
+  \eta=\frac{\text{embedded bits}}{\sum_t H(P_t)}.
+\]
+\subsection{RQ3--RQ4: Quality and Tradeoff}
+Compare ordinary and LEC sampling with independent-model perplexity and blinded
+preference judgments. Plot capacity against quality for temperature, top-$k$,
+and quantization settings.
+\subsection{RQ5: Detectability}
+Train and evaluate classifiers on held-out ordinary versus LEC completions.
+Report ROC--AUC with confidence intervals and corpus-level splits.
+
+\section{Results}
+\begin{figure}[h]
+  \centering
+  \fbox{\parbox[c][1.6in][c]{0.75\linewidth}{\centering
+  Capacity--quality Pareto curve placeholder}}
+  \caption{Embedding capacity versus linguistic quality.}
+\end{figure}
+
+\section{Limitations}
+Decoding requires an exact model, tokenizer, runtime configuration, and
+unmodified text. The method supplies no paraphrase resistance, error correction,
+or production key management. Model-generated text may remain detectable.
+
+\section{Discussion}
+Future work should test whether ciphertext can serve as reusable sampling
+entropy in other probabilistic generative models and examine finite-precision
+and synchronization costs.
+
+\section{Conclusion}
+Information normally consumed as random sampling entropy can carry encrypted
+data while following quantized language-model distributions.
+
+\end{document}
