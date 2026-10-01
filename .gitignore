@@ -25,3 +25,4 @@ paper/*.log
 paper/*.out
 paper/*.pdf
 .vercel
+.env*
